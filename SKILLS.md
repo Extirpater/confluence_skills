@@ -12,6 +12,8 @@ matters, a one-line conclusion. They have rejected tables, long paragraphs, and 
 - Site `deepgrove.atlassian.net`, cloudId `8a334fd3-7429-4c31-b5a4-4dc053934aca`, space `Deepgrove`.
 - Quarter folders (`2026Q4`), one folder per person (`Edwardq4`), one **live doc** per project:
   "Dflash2 Training" (5177345), "Critic Math RL" (4653060), "Train on math test experiments" (3407873), "RL Todo:".
+- Model and eval write-ups (Edwardq4 folder 3375105): "Ternary Ling-3 conversion" (27033603), "Ling-3 (LRC)"
+  (27000838), "Decision models: Maple and Ling-3.0-tiny" (27361289).
 - Fig 1 on "Train on math test experiments" is the reference for content (not styling): median line + middle-50% band, cap and
   penalty-start lines labeled on the right, correct vs wrong as two series.
 
@@ -23,7 +25,8 @@ Copy the user's own pages. Before writing, read 1-2 of their docs with the conne
 - Lowercase metric/set names the way they write them (aime26, hmmt26, held out, lr, kl, auc).
 - Keep every number exact, but only the numbers that matter. Let the figure carry the rest.
 - No tables. If something is a table, make it a plot; pick the form from the chooser under Figures. A table survives
-  only if it is genuinely lookup data.
+  only if it is genuinely lookup data. A results table across runs usually becomes bars against baselines on the
+  headline metric, a labeled scatter when the score has two parts, and a dumbbell for per-category gaps.
 - No filler or AI tells: no "Notably", "It's worth noting", "Key findings", "In summary", "Why this works", bold
   lead-ins on every bullet, em-dash chains, or restating the figure title in prose.
 - Caveats in one short line ("early = steps 9-29, not base"), not a paragraph.
@@ -47,6 +50,7 @@ from the data. Never switch chart types just for variety. The style started from
 | Before → after for ≤ ~8 items, when crossings or rank changes matter | slope chart | `slope` |
 | Mix of outcomes (correct / wrong / truncated) | over steps: stacked area; at a few checkpoints: stacked bars; `normalize=True` for shares | `stacked_area`, `stacked_bars` |
 | Two per-item metrics against each other (per-problem pass before vs after, length vs reward) | scatter, with y = x when it's before/after | `scatter`, `diag` |
+| Your models against published ones on two metrics (accuracy vs calibration) | labeled points: theirs grey, yours in color; dotted lines of equal combined score | `labeled_points`, `iso` |
 | Spread of a value (response length, reward) | 1-2 groups: histogram with shared bins; 3+ groups or long tails: CDF; across many buckets: boxes | `hist`, `cdf`, `boxes` |
 | A grid (problem × checkpoint, lr × kl sweep, confusion matrix) | heatmap: `cmap="seq"` for levels, `"div"` for signed changes | `heatmap` |
 | Phases and events on a curve | shaded phase, dashed event line, a callout for one point | `span`, `step`, `note` |
@@ -103,6 +107,9 @@ Rules:
 - Images: `executeWrite` op `createConfluenceAttachment` (contentId + localFilePath) returns a curl command; run it,
   then embed the returned media id. Multi-panel figures go full width (1800px), with the stored width/height set to the PNG's pixel size.
 - Edit in HTML/storage format so inline W&B link cards survive; markdown round-trips drop them.
+- Live docs: take the snapshot token from a `detail="full"` HTML draft read. The `outline` read can return a stale
+  token, and the save then fails with snapshot_stale. Rename a page by passing `title` to `updateConfluenceContent`.
+- Numbers copied from a paper or leaderboard: name the table in the caption, in one line ("others: Table 1 of ...").
 - Only touch the section you were asked about: append at the end, or replace from that section's heading to its
   end. Never rewrite the user's own text.
 - Live docs stay at version 1 and show "draft"; that is normal. A save conflict means someone has the page open:

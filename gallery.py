@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import docplot as dp
 
 rng = np.random.default_rng(3)
-fig, axs = dp.figure(15, ncols=3)
+fig, axs = dp.figure(16, ncols=4)
 ax = iter(axs)
 
 # (a) noisy training metric, two runs, an lr change and a warmup phase
@@ -140,5 +140,15 @@ D = rng.normal(2, 6, (6, 5))
 dp.heatmap(o, D, xlabels=["lr 1e-6", "2e-6", "5e-6", "1e-5", "2e-5"],
            ylabels=[f"kl {v}" for v in [0, .001, .01, .02, .05, .1]], cmap="div", fmt="{:+.0f}")
 dp.panel(o, "o", "Change vs base (pts)")
+
+# (p) your systems against published ones on two metrics, with lines of equal combined score
+p_ = next(ax)
+systems = {"Big-31B": (92, 76), "Reference": (88, 72), "Small-4B A": (86, 60), "Small-4B B": (81, 46), "uniform": (90, 1),
+           "ours, trained": (83, 40), "ours, base": (58, 32)}
+p_.set_xlim(55, 100)
+p_.set_ylim(-5, 85)
+dp.iso(p_, (50, 60, 70, 80), lambda c, x: 2 * c - x)
+dp.labeled_points(p_, systems, highlight={"ours, trained": 0, "ours, base": 0}, offsets={"Big-31B": (-5, 3), "Reference": (-5, -3), "Small-4B B": (5, 4), "ours, trained": (5, -5)})
+dp.panel(p_, "p", "Against published", ylabel="Accuracy", xlabel="Calibration")
 
 print(dp.save(fig, sys.argv[1] if len(sys.argv) > 1 else "gallery.png"))

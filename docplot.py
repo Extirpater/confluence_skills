@@ -445,6 +445,36 @@ def diag(ax, text=None):
                     fontsize=7.2, color=MUTED)
 
 
+
+def labeled_points(ax, points, highlight=None, offsets=None):
+    """Named systems on two metrics (yours against published ones): grey dots, each with its name; highlight =
+    {name: slot} colors yours. offsets = {name: (dx, dy)} in points moves a label off a neighbor (default right)."""
+    highlight, offsets = highlight or {}, offsets or {}
+    for name, (x, y) in points.items():
+        mine = name in highlight
+        ax.scatter(x, y, s=34 if mine else 26, color=_c(highlight[name]) if mine else GREY, edgecolors="white",
+                   linewidths=0.6, zorder=4 if mine else 3)
+        dx, dy = offsets.get(name, (5, 0))
+        ax.annotate(name, (x, y), xytext=(dx, dy), textcoords="offset points", fontsize=6.8, va="center",
+                    ha="left" if dx >= 0 else "right", color=INK if mine else INK2)
+
+
+def iso(ax, levels, fn, fmt="{}"):
+    """Dotted lines of equal combined score, y = fn(level, x) (e.g. (x + y) / 2 = level: fn = lambda c, x: 2 * c - x),
+    each labeled where it leaves the panel on the right. Call after setting the limits."""
+    xl, yl = ax.get_xlim(), ax.get_ylim()
+    xs = np.linspace(xl[0], xl[1], 50)
+    for level in levels:
+        ys = fn(level, xs)
+        ax.plot(xs, ys, color=GREY, lw=0.6, ls=(0, (1, 2)), zorder=1)
+        inside = (ys >= yl[0]) & (ys <= yl[1])
+        if inside.any():
+            k = np.flatnonzero(inside)[-1]
+            ax.annotate(fmt.format(level), (xs[k], ys[k]), xytext=(2, 0), textcoords="offset points", fontsize=6.5,
+                        color=MUTED, va="center")
+    ax.set_xlim(xl)
+    ax.set_ylim(yl)
+
 # ---- spread --------------------------------------------------------------------------------------------------------
 
 def hist(ax, data, bins=30, label=None, i=0, color=None, density=False, range=None, median=False, fmt="{:.0f}"):
